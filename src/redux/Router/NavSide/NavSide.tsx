@@ -2,12 +2,15 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import SVGComponent from "../../../assets/svg/SVGComponent";
 import { useDarkMode } from "../../../hooks/useDarkMode";
+import { useTranslation } from "react-i18next";
 
 type NavSideProps = React.HTMLAttributes<HTMLElement>;
 
 const NavSide: React.FC<NavSideProps> = ({}) => {
   const [selectedLink, setSelectedLink] = useState("");
   const isDarkMode = useDarkMode();
+  const { t } = useTranslation();
+
   const handleLinkClick = (link: string) => {
     setSelectedLink(link);
   };
@@ -23,7 +26,7 @@ const NavSide: React.FC<NavSideProps> = ({}) => {
     >
       <h1 className="mt-10 ml-10 text-3xl font-bold"></h1>
       <div className="mt-20 space-y-3">
-      <Link
+        <Link
           key="Home"
           to="/"
           className={`${linkClasses} ${
@@ -33,9 +36,7 @@ const NavSide: React.FC<NavSideProps> = ({}) => {
         >
           <div>
             {selectedLink === "/" && <SVGComponent />}
-            <span className="">
-              creact prodact
-            </span>
+            <span className="">{t("navSide.createProduct")}</span>
           </div>
         </Link>
         <Link
@@ -50,10 +51,9 @@ const NavSide: React.FC<NavSideProps> = ({}) => {
         >
           <div>
             {selectedLink === "/List" && <SVGComponent />}
-            <span className="">List</span>
+            <span className="">{t("navSide.list")}</span>
           </div>
         </Link>
-     
 
         <Link
           key="UserProducts"
@@ -67,42 +67,9 @@ const NavSide: React.FC<NavSideProps> = ({}) => {
         >
           <div>
             {selectedLink === "/UserProducts" && <SVGComponent />}
-            <span className="">
-              User Products
-            </span>
+            <span className="">{t("navSide.userProducts")}</span>
           </div>
         </Link>
-{/* 
-        <Link
-          key="Swiper"
-          to="/Swiper"
-          className={`${linkClasses} ${
-            selectedLink === "/Swiper"
-              ? "bg-slate-600 text-white  animate-pulse"
-              : ""
-          }`}
-          onClick={() => handleLinkClick("/Swiper")}
-        >
-          <div>
-            {selectedLink === "/Swiper" && <SVGComponent />}
-            <span className="">Swiper</span>
-          </div>
-        </Link>
-        <Link
-          key="Footer"
-          to="/Footer"
-          className={`${linkClasses} ${
-            selectedLink === "/Footer"
-              ? "bg-slate-600 text-white  animate-pulse"
-              : ""
-          }`}
-          onClick={() => handleLinkClick("/Footer")}
-        >
-          <div>
-            {selectedLink === "/Footer" && <SVGComponent />}
-            <span className="">Footer</span>
-          </div>
-        </Link> */}
       </div>
     </div>
   );

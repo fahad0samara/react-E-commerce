@@ -3,6 +3,8 @@ import axios from "axios";
 import API_URL from "./apiConfig";
 import { useDarkMode } from "./hooks/useDarkMode";
 import {Helmet} from "react-helmet";
+import { useTranslation } from "react-i18next";
+import i18n from "./i18n";
 interface Product {
   _id: string;
   image: string;
@@ -21,6 +23,7 @@ const UserProducts: React.FC = () => {
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
   
+    const { t } = useTranslation();
     useEffect(() => {
       const fetchData = async () => {
         try {
@@ -52,17 +55,16 @@ const UserProducts: React.FC = () => {
     };
 
   return (
-    <div
-      className={`${
-        isDarkMode ? "bg-black text-white antialiased" : "bg-white text-black"
-      }`}
+    <div className={` ${
+      isDarkMode ? "bg-black text-white" : "bg-white text-black"
+  } ${i18n.language === 'ar' ? 'rtl' : ''}`}
     >
          <Helmet>
         <title>{pageTitle}</title>
       </Helmet>
       <div className="container mx-auto px-4 py-8">
         <h1 className="mb-4 text-center text-3xl font-bold text-green-400">
-          Hello,
+          {t('dashboard.HelloMessage')}
         </h1>
         {loading ? (
           <p className="text-center">Loading...</p>
@@ -78,17 +80,20 @@ const UserProducts: React.FC = () => {
                       "You haven't added any products yet."
                     ) : (
                       <>
-                        Here are the products that you've added{" "}
+                        {t('dashboard.productCountMessage')}
                         <span className=" text-green-400  text-xl font-bold  ">
                           {userProducts.length}{" "}
-                          {userProducts.length === 1 ? "product" : "products"}
+                          {userProducts.length === 1 ? 
+                          t('dashboard.product') :
+                          t('dashboard.product')
+                          }
                         </span>
                       </>
                     )}
                   </p>
 
                   <p className="text-gray-400 text-lg mb-4 font-semibold">
-                    Thank you for your help! 💖
+                    {t('dashboard.thankYouMessage')}
                   </p>
                 </div>
 

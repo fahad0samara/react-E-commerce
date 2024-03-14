@@ -10,7 +10,12 @@ import { useNavigate } from "react-router-dom";
 import {Helmet} from "react-helmet";
 import { useDarkMode } from "./hooks/useDarkMode";
 import Loder from "./Loder/Loder";
+import { toast } from "react-toastify";
+import { useTranslation } from 'react-i18next';
+import i18n from './i18n'; 
+
 const CreateProductForm = () => {
+  const { t } = useTranslation();
 
   const pageTitle = "Create Product";
   const isDarkMode = useDarkMode()
@@ -83,10 +88,15 @@ const navigate = useNavigate();
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0];
+      // Check if the selected file is an image
+      if (!file.type.startsWith('image/')) {
+        toast.error(t('createProduct.invalidImageError'));
+        return;
+      }
       const reader = new FileReader();
 
       reader.onload = () => {
-        if (typeof reader.result === "string") {
+        if (typeof reader.result === 'string') {
           setFormData({
             ...formData,
             image: file, // Set the image file object
@@ -97,6 +107,7 @@ const navigate = useNavigate();
       reader.readAsDataURL(file);
     }
   };
+
 
   const handleSubmit = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
@@ -131,30 +142,24 @@ const navigate = useNavigate();
         isNewProduct: false,
         category: '', 
       });
-  console.log("Product added successfully", response.data);
+      toast.success(t('createProduct.successMessage'));
   
    
       navigate("/ProductAddedConfirmation");
     } catch (error) {
       if (error.response) {
         // Server responded with a status code outside of 2xx range
-        console.error("Error creating product:", error.response.data);
-        // Provide error message to the user
-        alert(
-          "An error occurred while creating the product. Please try again later."
-        );
+        toast.error("Error creating product:", error.response.data);
+
       } else if (error.request) {
-        // Request was made but no response was received
-        console.error("No response received:", error.request);
-        // Provide error message to the user
-        alert(
+ toast.error(
           "No response received from the server. Please check your internet connection and try again."
         );
       } else {
-        // Something else happened while setting up the request
-        console.error("Error setting up the request:", error.message);
-        // Provide error message to the user
-        alert("An unexpected error occurred. Please try again later.");
+
+        toast.error("Error setting up the request:", error.message);
+   
+     
       }
     } finally {
       setLoading(false); // Set loading state back to false
@@ -182,11 +187,14 @@ const navigate = useNavigate();
 
 
 
+
+  
+
   return (
 
-    <div    className={` ${
+    <div className={` ${
       isDarkMode ? "bg-black text-white" : "bg-white text-black"
-    }`}
+  } ${i18n.language === 'ar' ? 'rtl' : ''}`}
   >
       <Helmet>
         <title>{pageTitle}</title>
@@ -220,6 +228,11 @@ const navigate = useNavigate();
                 </div>
               )}
             </div>
+         
+
+
+
+  
             <div className="flex justify-center items-center h-full ">
               <div
   className={`
@@ -233,7 +246,7 @@ const navigate = useNavigate();
 `}
               >
                 <h3 className="py-4 text-2xl text-center ">
-                  Create a New Product
+                {t('createProduct.title')}
                 </h3>
                 {loading && (
                   <div className="flex justify-center mb-4">
@@ -246,8 +259,10 @@ const navigate = useNavigate();
                   encType="multipart/form-data"
                   className="px-4 pt-6 pb-4 mb-4 rounded"
                 >
+                  
                   <div className="flex flex-wrap -mx-2 mb-4">
-                    {formData.image && (
+                  {formData.image && typeof formData.image === 'object' && formData.image.type.startsWith('image/') && (
+
                       <div className="w-full px-2 mb-4 flex justify-center md:hidden">
                         <div className="relative">
                           <img
@@ -271,13 +286,14 @@ const navigate = useNavigate();
                         htmlFor="name"
                         className="block mb-1 "
                       >
-                        Product Name
+                 {t('createProduct.name')}
+
                       </label>
                       <input
   type="text"
   id="name"
   name="name"
-  placeholder="Enter product name"
+  placeholder={t('createProduct.namePlaceholder')}
   value={formData.name}
   onChange={handleInputChange}
   className={`
@@ -294,7 +310,7 @@ const navigate = useNavigate();
                     </div>
                     <div className="w-full sm:w-1/2 px-2 mb-4">
   <label htmlFor="image" className="block mb-1">
-    Product Image
+    {t('createProduct.image')}
   </label>
   <div className={`
     flex
@@ -319,10 +335,10 @@ const navigate = useNavigate();
       className="hidden"
       required
     />
-    <span className={`text-gray-600 ${isDarkMode ? "text-white" : "text-black"}`}>
+    <span className={`text-gray-600 ${isDarkMode ? "text-white" : "text-black"} ${i18n.language === 'ar' ? 'mr-4' : ''}`}>
       {formData.image instanceof File
         ? formData.image.name
-: "Select an image"
+:t('createProduct.selectImage')
       }
         
     </span>
@@ -336,10 +352,10 @@ const navigate = useNavigate();
                         htmlFor="description"
                         className="block mb-1 "
                       >
-                        Product Description
+                        {t('createProduct.description')}
                       </label>
                       <textarea
-                        placeholder="Enter product description"
+                        placeholder={t('createProduct.descriptionPlaceholder')}
                         id="description"
                         name="description"
                         value={formData.description}
@@ -360,10 +376,10 @@ const navigate = useNavigate();
                         htmlFor="price"
                         className="block mb-1 "
                       >
-                        Price
+                        {t('createProduct.price')}
                       </label>
                       <input
-                      placeholder="Enter product price"
+                      placeholder={t('createProduct.pricePlaceholder')}
                         type="number"
                         id="price"
                         name="price"
@@ -387,11 +403,11 @@ const navigate = useNavigate();
                         htmlFor="stockQuantity"
                         className="block mb-1 "
                       >
-                        stockQuantity
+                        {t('createProduct.stockQuantity')}
                       </label>
                   
                       <input
-                        placeholder="Enter product stockQuantity"
+                        placeholder={t('createProduct.stockQuantityPlaceholder')}
                         type="number"
                         id="stockQuantity"
                         name="stockQuantity"
@@ -414,7 +430,7 @@ const navigate = useNavigate();
                     >
                     <div className="mb-4">
           <label htmlFor="category" className="block mb-1">
-            Category
+            {t('createProduct.category')}
           </label>
           <select
               required
@@ -432,7 +448,9 @@ const navigate = useNavigate();
             `}
         
           >
-            <option value="">Select a category</option>
+            <option value="">
+              {t('createProduct.selectCategory')}
+            </option>
             {categories.map((category) => (
               <option key={category._id} value={category._id}>
                 {category.name}
@@ -440,10 +458,10 @@ const navigate = useNavigate();
             ))}
           </select>
         </div>
-        <div className="w-full px-2 mb-4 flex items-center">
-  <label htmlFor="isNewProduct" className="mr-4">
-    Is the product new?
-    <span className="ml-2">{formData.isNewProduct ? "Yes" : "No"}</span>
+        <div className={"w-full px-2 mb-4 flex items-center"}>
+  <label htmlFor="isNewProduct" className={`${i18n.language === 'ar' ? 'ml-2' : ''} mr-4`}>
+  {t('createProduct.isNewProduct')}
+   
   </label>
   <Switch
     id="isNewProduct" 
@@ -463,16 +481,11 @@ const navigate = useNavigate();
   <label className="mr-4" 
   htmlFor="showAdditionalFields"
   >
-    Do you want to add discount to the product?
-    <span className="ml-2">{showAdditionalFields ?
-      "Yes" : "No"
-      
-    
-      
-    }</span>
+    {t('createProduct.addDiscount')}
+
     {showAdditionalFields && (
       <span className="ml-4">
-        Fill in the discount price and discount percentage.
+        {t('createProduct.fillDiscountFields')}
       </span>
     )}
   </label>
@@ -489,10 +502,10 @@ const navigate = useNavigate();
                         htmlFor="originalPrice"
                         className="block mb-1 "
                       >
-                      discount price 
+                    {t('createProduct.discountPrice')}
                       </label>
                       <input
-                        placeholder="Enter product original price"
+                        placeholder={t('createProduct.discountPricePlaceholder')}
                         type="number"
                         id="originalPrice"
                         name="originalPrice"
@@ -517,10 +530,10 @@ const navigate = useNavigate();
                         htmlFor="discountPercentage"
                         className="block mb-1 "
                       >
-                        Discount Percentage
+                        {t('createProduct.discountPercentage')}
                       </label>
                       <input
-                        placeholder="Enter product discount percentage"
+                        placeholder={t('createProduct.discountPercentagePlaceholder')}
                         type="number"
                         id="discountPercentage"
                         name="discountPercentage"
@@ -548,7 +561,7 @@ const navigate = useNavigate();
       type="submit"
       className="bg-green-500 text-white px-4 py-2 rounded-md text-2xl font-bold"
     >
-      Create Product
+      {t('createProduct.createProductBtn')}
     </button>
 
 </div>

@@ -172,25 +172,28 @@ const fetchData = async () => {
 
   const exportToCSV = () => {
     const csvContent = [
-      'Full Name, Category, Price, Created At, Status',
-      ...filteredData.map(cat =>
-        [
-          cat.name,
-          cat.category?.name,
-          cat.price,
-          new Date(cat.createdAt).toLocaleDateString()
-        ].join(',')
-      )
-    ].join('\n')
-
-    const encodedURI = encodeURI(`data:text/csv;charset=utf-8,${csvContent}`)
-    const link = document.createElement('a')
-    link.setAttribute('href', encodedURI)
-    link.setAttribute('download', 'menu.csv')
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-  }
+      'Full Name, Category, Price, Original Price, Discount Percentage, Stock Quantity, Is New Product, Created At',
+      ...filteredData.map(product => [
+        product.name,
+        product.categories.map(category => category.name).join(','),
+        product.price,
+        product.originalPrice !== null ? product.originalPrice : 'N/A',
+        product.discountPercentage !== null ? product.discountPercentage : 'N/A',
+        product.stockQuantity,
+        product.isNewProduct ? 'Yes' : 'No',
+        new Date(product.createdAt).toLocaleDateString()
+      ].join(','))
+    ].join('\n');
+  
+    const encodedURI = encodeURI(`data:text/csv;charset=utf-8,${csvContent}`);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedURI);
+    link.setAttribute('download', 'products.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+  
 
 
   //loading
