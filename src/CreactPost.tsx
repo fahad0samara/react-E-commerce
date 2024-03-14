@@ -1,6 +1,7 @@
-//@ts-nocheck
 
-import { useState } from "react";
+import { useState,
+  useEffect
+ } from "react";
 import axios from "axios";
 import API_URL from "./apiConfig";
 import { FaImage } from "react-icons/fa"; // Import image icon
@@ -8,6 +9,7 @@ import Switch from 'react-switch';
 import { useNavigate } from "react-router-dom";
 import {Helmet} from "react-helmet";
 import { useDarkMode } from "./hooks/useDarkMode";
+import Loder from "./Loder/Loder";
 const CreateProductForm = () => {
 
   const pageTitle = "Create Product";
@@ -22,8 +24,10 @@ const CreateProductForm = () => {
 originalPrice: string;
     discountPercentage: string;
     image: File | string;
-    flavor: string;
+    stockQuantity: number;
     isNewProduct: boolean; 
+    category: '', 
+
 
   }>({
     name: "",
@@ -33,24 +37,48 @@ originalPrice: string;
     originalPrice: "",
     discountPercentage: "",
     image: "",
-    flavor: "",
+    stockQuantity: 0,
     isNewProduct: false,
+    category: '', 
   });
-  const [productAdded, setProductAdded] = useState(false);
-  const navigate = useNavigate();
+  const [categories, setCategories] = useState([]);
+const navigate = useNavigate();
   const [loading, setLoading] = useState(false); // Loading state
   const [showAdditionalFields, setShowAdditionalFields] = useState(false);
-  //saucss meassge
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await axios.get(`${API_URL}/products/categories`);
+        setCategories(response.data);
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+      }
+    };
+
+    fetchCategories();
+  }, []); 
 
 
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+  
+    // Special handling for category dropdown
+    if (name === 'category') {
+      setFormData({
+        ...formData,
+        category: value, 
+      });
+    } else {
+      setFormData({
+        ...formData,
+        [name]: value,
+      });
+    }
   };
+  
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -80,9 +108,13 @@ originalPrice: string;
     formDataToSend.append("price", formData.price);
     formDataToSend.append("originalPrice", formData.originalPrice);
     formDataToSend.append("discountPercentage", formData.discountPercentage);
-    formDataToSend.append("flavor", formData.flavor);
+    formDataToSend.append("stockQuantity", formData.stockQuantity.toString());
     formDataToSend.append("image", formData.image);
     formDataToSend.append("isNewProduct", String(formData.isNewProduct)); 
+    formDataToSend.append('category', formData.category); 
+    
+
+
 
     try {
       const response = await axios.post(`${API_URL}/products`, formDataToSend);
@@ -95,8 +127,9 @@ originalPrice: string;
         originalPrice: "",
         discountPercentage: "",
         image: "",
-        flavor: "",
+        stockQuantity: 0,
         isNewProduct: false,
+        category: '', 
       });
   console.log("Product added successfully", response.data);
   
@@ -141,6 +174,13 @@ originalPrice: string;
       input.value = ""; // Reset the input value
     }
   };
+
+  //loading
+  if (loading) {
+    return <Loder />;
+  }
+
+
 
   return (
 
@@ -344,17 +384,18 @@ originalPrice: string;
                     </div>
                     <div className="w-full sm:w-1/2 px-2 mb-4">
                       <label
-                        htmlFor="flavor"
+                        htmlFor="stockQuantity"
                         className="block mb-1 "
                       >
-                        Flavor
+                        stockQuantity
                       </label>
+                  
                       <input
-                        placeholder="Enter product flavor"
-                        type="text"
-                        id="flavor"
-                        name="flavor"
-                        value={formData.flavor}
+                        placeholder="Enter product stockQuantity"
+                        type="number"
+                        id="stockQuantity"
+                        name="stockQuantity"
+                        value={formData.stockQuantity}
                         onChange={handleInputChange}
                         className={`
     w-full
@@ -367,8 +408,39 @@ originalPrice: string;
                         required
                       />
                     </div>
-                    <div className="w-full px-2 mb-4 flex items-center">
-                    <div className="w-full px-2 mb-4 flex items-center">
+
+                    <div
+                      className="w-full px-2 mb-4"
+                    >
+                    <div className="mb-4">
+          <label htmlFor="category" className="block mb-1">
+            Category
+          </label>
+          <select
+              required
+            id="category"
+            name="category"
+            value={formData.category}
+            onChange={handleInputChange}
+            className={`
+              w-full
+              px-4
+              py-2
+              border
+              rounded-md
+              ${isDarkMode ? 'bg-gray-600 text-white' : 'bg-gray-300 text-black'}
+            `}
+        
+          >
+            <option value="">Select a category</option>
+            {categories.map((category) => (
+              <option key={category._id} value={category._id}>
+                {category.name}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="w-full px-2 mb-4 flex items-center">
   <label htmlFor="isNewProduct" className="mr-4">
     Is the product new?
     <span className="ml-2">{formData.isNewProduct ? "Yes" : "No"}</span>
@@ -380,7 +452,12 @@ originalPrice: string;
   />
 </div>
 
-      </div>
+                    </div>
+
+      
+                 
+
+   
 
                     <div className="w-full px-2 mb-4 flex items-center">
   <label className="mr-4" 
@@ -466,19 +543,14 @@ originalPrice: string;
                   </div>
 
                   <div className="w-full px-2 mb-4 flex justify-center items-center">
-  {loading ? (
-    <div className="text-center">
-      <span className="animate-spin inline-flex rounded-full h-8 w-8 border-b-2 border-gray-900"></span>
-      <span className="block mt-2 text-2xl font-bold">Creating product...</span>
-    </div>
-  ) : (
+
     <button
       type="submit"
       className="bg-green-500 text-white px-4 py-2 rounded-md text-2xl font-bold"
     >
       Create Product
     </button>
-  )}
+
 </div>
 
                 </form>
@@ -492,3 +564,5 @@ originalPrice: string;
 };
 
 export default CreateProductForm;
+
+

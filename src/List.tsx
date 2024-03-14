@@ -40,21 +40,21 @@ const List = () => {
 const DESCENDING = 'desc';
 
   // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-  const fetchData = async () => {
-    try {
-      setLoading(true)
-      const { data } = await axios.get<MenuItem[]>(
-        `${API_URL}/products?page=${page}&limit=${itemsPerPage}&search=${searchQuery}&sortColumn=${sortColumn}&sortDirection=${sortDirection}`
-      );
-      setData(data.products);
-      setTotalPages(data.totalPages);
-      
-    } catch (error) {
-      console.log(error)
-    } finally {
-      setLoading(false)
-    }
+const fetchData = async () => {
+  try {
+    setLoading(true)
+    const { data } = await axios.get<MenuItem[]>(
+      `${API_URL}/products?page=${page}&pageSize=${itemsPerPage}&search=${searchQuery}&sortColumn=${sortColumn}&sortDirection=${sortDirection}`
+    );
+    setData(data.products);
+    setTotalPages(data.totalPages);
+    console.log(data.products);
+  } catch (error) {
+    console.log(error)
+  } finally {
+    setLoading(false)
   }
+}
 
   useEffect(() => {
     const debounceTimeout = setTimeout(() => {
@@ -72,7 +72,7 @@ const DESCENDING = 'desc';
   }
 
   const handlePrevPage = () => {
-    setPage(prevPage => prevPage + 1);
+    setPage(prevPage => prevPage - 1);
 
   }
 
@@ -411,8 +411,13 @@ const DESCENDING = 'desc';
                       </td>
 
                       <td className="whitespace-no-wrap py-4 px-2 text-right text-sm lg:text-left">
-                        {cat.category?.name}
-                      </td>
+        {cat.categories.map((category, i) => (
+          <span key={i}>
+            {category.name}
+  
+          </span>
+        ))}
+      </td>
 
                       <td className="whitespace-no-wrap py-4 px-4 text-right text-sm lg:text-left">
                         {cat.price}
@@ -482,71 +487,72 @@ const DESCENDING = 'desc';
             </table>
           </div>
         </div>
-        <div
-          className={
-            "flex flex-col sm:flex-row justify-between my-4 mx-3 items-center"
-          }
-        >
-          <div>
-            <span className="text-xs sm:text-xl">
-              Showing {page} of {totalPages} Entries
-            </span>
-          </div>
-          <div className="flex items-center justify-center mt-4 sm:mt-0 sm:ml-4">
-            <button
-              onClick={handlePrevPage}
-              disabled={page === 1}
-              className="mr-2 h-12 w-12 rounded-full bg-green-400 text-black border text-md font-semibold transition duration-150 hover:bg-gray-100"
-            >
-              Prev
-            </button>
-            <button
-              onClick={handleNextPage}
-              disabled={page === totalPages}
-              className="h-12 w-12 rounded-full border bg-green-400 text-black text-md font-semibold transition duration-150 hover:bg-gray-100"
-            >
-              Next
-            </button>
-          </div>
-          <div className="flex items-center justify-center mt-4 sm:mt-0 ">
-            <div className="ml-4">
-              {/* Dropdown to select items per page */}
-              <label htmlFor="itemsPerPage" className="mr-2 text-sm">
-                Items per page:
-              </label>
-              <select
-                id="itemsPerPage"
-                className="px-2 py-1 border rounded-md bg-green-400 text-black"
-                value={itemsPerPage}
-                onChange={e => {
-                  setItemsPerPage(Number(e.target.value));
-                }}
-              >
-                <option value={10}>10</option>
-                <option value={20}>20</option>
-                <option value={30}>30</option>
-                <option value={40}>40</option>
-              </select>
-            </div>
-            <div className="ml-4">
-              {/* Direct page number input */}
-              <label htmlFor="pageNumber" className="mr-2 text-sm">
-                Go to page:
-              </label>
-              <input
-                id="pageNumber"
-                type="number"
-                min={1}
-                max={totalPages}
-                className="px-2 py-1 border rounded-md w-16 bg-green-400 text-black"
-                value={page}
-                onChange={e => {
-                  setPage(Number(e.target.value));
-                }}
-              />
-            </div>
-          </div>
-        </div>
+        <div className="flex flex-col sm:flex-row justify-between my-4 mx-3 items-center">
+  <div>
+    <span className="text-xs sm:text-xl">
+      Showing {(page - 1) * itemsPerPage + 1} - {Math.min(page * itemsPerPage, totalPages)} of {totalPages} Entries
+    </span>
+  </div>
+  <div className="flex items-center justify-center mt-4 sm:mt-0 sm:ml-4">
+    <button
+      onClick={handlePrevPage}
+      disabled={page === 1}
+      className="mr-2 h-12 w-12 rounded-full bg-green-400 text-black border text-md font-semibold transition duration-150 hover:bg-gray-100"
+    >
+      Prev
+    </button>
+    <button
+      onClick={handleNextPage}
+      disabled={page === totalPages}
+      className="h-12 w-12 rounded-full border bg-green-400 text-black text-md font-semibold transition duration-150 hover:bg-gray-100"
+    >
+      Next
+    </button>
+  </div>
+  <div className="flex items-center justify-center mt-4 sm:mt-0 ">
+    <div className="ml-4">
+      {/* Dropdown to select items per page */}
+      <label htmlFor="itemsPerPage" className="mr-2 text-sm">
+        Items per page:
+      </label>
+      <select
+  id="itemsPerPage"
+  className="px-2 py-1 border rounded-md bg-green-400 text-black"
+  value={itemsPerPage}
+  onChange={e => {
+    setItemsPerPage(Number(e.target.value));
+    setPage(1); 
+   
+    fetchData(1, Number(e.target.value));
+  }}
+>
+  <option value={10}>10</option>
+  <option value={20}>20</option>
+  <option value={30}>30</option>
+  <option value={40}>40</option>
+</select>
+
+    </div>
+    <div className="ml-4">
+      {/* Direct page number input */}
+      <label htmlFor="pageNumber" className="mr-2 text-sm">
+        Go to page:
+      </label>
+      <input
+        id="pageNumber"
+        type="number"
+        min={1}
+        max={totalPages}
+        className="px-2 py-1 border rounded-md w-16 bg-green-400 text-black"
+        value={page}
+        onChange={e => {
+          setPage(Number(e.target.value));
+        }}
+      />
+    </div>
+  </div>
+</div>
+
       </div>
       {editMode && editItemId && (
         <UpdateItem

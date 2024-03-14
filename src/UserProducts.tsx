@@ -11,6 +11,7 @@ interface Product {
   price: number;
   originalPrice?: number;
   discountPercentage?: number;
+  stockQuantity:number
 }
 
 const UserProducts: React.FC = () => {
@@ -25,7 +26,7 @@ const UserProducts: React.FC = () => {
         try {
           setLoading(true);
           const response = await axios.get<{ userIP: string }>(
-            `${API_URL}/get-user-ip`
+            `${API_URL}/get-user-data`
           );
           const userIP = response.data.userIP; // Store userIP if needed later
           await fetchUserProducts(userIP);
@@ -104,13 +105,22 @@ const UserProducts: React.FC = () => {
                           className="h-80 w-72 object-cover rounded-t-xl"
                         />
                         <div className="px-4 py-3 w-72">
-                          {product.isNewProduct && (
+                          <div
+                          className="flex items-center justify-between w-full mb-2"
+                            
+                          >
+                            <span className="text-xs font-semibold text-gray-500">
+                            stockQuantity : {product.stockQuantity}
+                            </span>
+                            {product.isNewProduct && (
                             <div className="mb-2">
                               <span className="inline-block bg-teal-200 text-teal-800 py-1 px-3 text-xs rounded-full uppercase font-semibold tracking-wide">
                                 New
                               </span>
                             </div>
                           )}
+                          </div>
+                  
                           <span className="text-black mr-3 uppercase text-xs">
                             Brand
                           </span>
