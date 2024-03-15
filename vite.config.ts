@@ -9,12 +9,22 @@ export default defineConfig({
     ViteCompressionPlugin({
       verbose: true,
       disable: false,
-      threshold: 10240, // Threshold for compression
+      threshold: 10240,
       algorithm: 'gzip',
       ext: '.gz'
+
+   
+     
     })
   ],
   build: {
+    target: 'es2015',
+    outDir: 'build',
+    assetsDir: 'assets',
+    minify: 'terser',
+    sourcemap: false,
+  
+
     chunkSizeWarningLimit: 1000, // Adjust the chunk size warning limit
     rollupOptions: {
       output: {
