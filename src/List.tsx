@@ -94,7 +94,7 @@ const List = () => {
         position: "top-right",
         autoClose: 3000,
         hideProgressBar: false,
-        closeOnClick: true,
+
         draggable: true,
       });
     } catch (error) {
@@ -105,9 +105,9 @@ const List = () => {
       toast.error(error.response.data.message, {
         position: "top-right",
         autoClose: 9000,
-        closeOnClick: true,
+
         hideProgressBar: false,
-        closeOnClick: true,
+     
         draggable: true,
       });
     }
