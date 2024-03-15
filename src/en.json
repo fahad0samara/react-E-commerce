@@ -43,6 +43,13 @@
     "createProduct": "Create Product",
     "list": "List",
     "userProducts": "User Products"
+  },
+  "languageToggle": {
+    "english": "English",
+    "arabic": "العربية"
+  },
+  "toasts": {
+    "arabicCharactersNotAllowed": "Arabic characters are not allowed."
   }
   
   }

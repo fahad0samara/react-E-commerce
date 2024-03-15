@@ -74,15 +74,32 @@ const navigate = useNavigate();
     if (name === 'category') {
       setFormData({
         ...formData,
-        category: value, 
+        category: value,
       });
     } else {
+      // Validate Arabic input
+      const arabicRegex = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/;
+      if ((name === 'name' || name === 'description') && arabicRegex.test(value)) {
+        // Show toast notification
+        toast.error(t('toasts.arabicCharactersNotAllowed'), {
+          position: 'top-right',
+          autoClose: 3000, // Auto close the toast after 3 seconds
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        });
+        return;
+      }
+  
       setFormData({
         ...formData,
         [name]: value,
       });
     }
   };
+  
   
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {

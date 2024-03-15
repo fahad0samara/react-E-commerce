@@ -41,6 +41,13 @@
     "createProduct": "إضافة منتج",
     "list": "قائمة المنتجات",
     "userProducts": "منتجاتي"
+  },
+  "languageToggle": {
+    "english": "English",
+    "arabic": "العربية"
+  },
+  "toasts": {
+    "arabicCharactersNotAllowed": "الأحرف العربية غير مسموح بها.  "
   }
     }
   

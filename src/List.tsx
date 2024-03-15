@@ -1,115 +1,117 @@
-
 //@ts-nocheck
-import { useState, useEffect } from "react"
-import axios from 'axios'
-import {Helmet} from "react-helmet";
+import { useState, useEffect } from "react";
+import axios from "axios";
+import { Helmet } from "react-helmet";
 
-import { toast } from 'react-toastify'
-import 'react-toastify/dist/ReactToastify.css'
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
+import ViewItem from "./ViewItem";
+import { FaTrash, FaEdit, FaEye } from "react-icons/fa";
 
-import ViewItem from './ViewItem'
-import { FaTrash, FaEdit, FaEye } from 'react-icons/fa'
-
-import {
-  AiOutlineSortAscending,
-  AiOutlineFile,
-
-} from 'react-icons/ai'
-import { BsSearch } from 'react-icons/bs'
+import { AiOutlineSortAscending, AiOutlineFile } from "react-icons/ai";
+import { BsSearch } from "react-icons/bs";
 import { useDarkMode } from "./hooks/useDarkMode";
-import { MenuItem } from '../type'
+import { MenuItem } from "../type";
 import API_URL from "./apiConfig";
 import UpdateItem from "./UpdateItem";
 
 const List = () => {
-  const pageTitle = 'List'
-  const isDarkMode = useDarkMode()
-  const [data, setData] = useState([])
-  const [page, setPage] = useState(1)
-  const [totalPages, setTotalPages] = useState(1)
-  const [confirmDelete, setConfirmDelete] = useState(false)
-  const [deletingCatId, setDeletingCatId] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [searchQuery, setSearchQuery] = useState('')
-  const [itemsPerPage, setItemsPerPage] = useState(10)
-  const [sortColumn, setSortColumn] = useState('')
-  const [sortDirection, setSortDirection] = useState('')
-  const [selectedItem, setSelectedItem] = useState(null)
-  const ASCENDING = 'asc';
-const DESCENDING = 'desc';
+  const pageTitle = "List";
+  const isDarkMode = useDarkMode();
+  const [data, setData] = useState([]);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deletingCatId, setDeletingCatId] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [sortColumn, setSortColumn] = useState("");
+  const [sortDirection, setSortDirection] = useState("");
+  const [selectedItem, setSelectedItem] = useState(null);
+  const ASCENDING = "asc";
+  const DESCENDING = "desc";
 
   // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-const fetchData = async () => {
-  try {
-    setLoading(true)
-    const { data } = await axios.get<MenuItem[]>(
-      `${API_URL}/products?page=${page}&pageSize=${itemsPerPage}&search=${searchQuery}&sortColumn=${sortColumn}&sortDirection=${sortDirection}`
-    );
-    setData(data.products);
-    setTotalPages(data.totalPages);
-    console.log(data.products);
-  } catch (error) {
-    console.log(error)
-  } finally {
-    setLoading(false)
-  }
-}
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const { data } = await axios.get<MenuItem[]>(
+        `${API_URL}/products?page=${page}&pageSize=${itemsPerPage}&search=${searchQuery}&sortColumn=${sortColumn}&sortDirection=${sortDirection}`
+      );
+      setData(data.products);
+      setTotalPages(data.totalPages);
+
+    } catch (error) {
+      console.log(error);
+      toast.error(error.response.data.message, {
+        position: "top-right",
+        autoClose: 9000,
+        closeOnClick: true,
+        hideProgressBar: false,
+        closeOnClick: true,
+        draggable: true,
+      });
+      setLoading(false);
+   
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     const debounceTimeout = setTimeout(() => {
-      fetchData()
-    }, 300) // Debounce timeout: 300 milliseconds
+      fetchData();
+    }, 300); // Debounce timeout: 300 milliseconds
 
     return () => {
-      clearTimeout(debounceTimeout)
-    }
-  }, [page, searchQuery, itemsPerPage, sortColumn, sortDirection])
+      clearTimeout(debounceTimeout);
+    };
+  }, [page, searchQuery, itemsPerPage, sortColumn, sortDirection]);
 
   const handleNextPage = () => {
-    setPage(prevPage => prevPage + 1);
-
-  }
+    setPage((prevPage) => prevPage + 1);
+  };
 
   const handlePrevPage = () => {
-    setPage(prevPage => prevPage - 1);
-
-  }
+    setPage((prevPage) => prevPage - 1);
+  };
 
   const handleDeleteCat = (id: string) => {
-    setConfirmDelete(true)
-    setDeletingCatId(id)
-  }
+    setConfirmDelete(true);
+    setDeletingCatId(id);
+  };
 
   const confirmDeleteCat = async () => {
     try {
-      setLoading(true)
-      await axios.delete(
-        `${API_URL}/products/${deletingCatId}`
-      )
-      setData(data.filter((cat: any) => cat._id !== deletingCatId))
-      setConfirmDelete(false)
-      setLoading(false)
-      toast.success('Category deleted successfully', {
-        position: 'top-right',
+      setLoading(true);
+      await axios.delete(`${API_URL}/products/${deletingCatId}`);
+      setData(data.filter((cat: any) => cat._id !== deletingCatId));
+      setConfirmDelete(false);
+      setLoading(false);
+      toast.success("Category deleted successfully", {
+        position: "top-right",
         autoClose: 3000,
         hideProgressBar: false,
         closeOnClick: true,
-        draggable: true
-      })
+        draggable: true,
+      });
     } catch (error) {
-      console.log(error)
-      setLoading(false)
+      console.log(error);
+      setLoading(false);
+      setConfirmDelete(false);
 
-      toast.error('Something went wrong', {
-        position: 'top-right',
-        autoClose: 3000,
+      toast.error(error.response.data.message, {
+        position: "top-right",
+        autoClose: 9000,
+        closeOnClick: true,
         hideProgressBar: false,
         closeOnClick: true,
-        draggable: true
-      })
+        draggable: true,
+      });
     }
-  }
+  };
 
   // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   const handleSort = (column: string) => {
@@ -122,83 +124,85 @@ const fetchData = async () => {
   };
 
   const filteredData = data
-    .filter(cat => cat.name.toLowerCase().includes(searchQuery.toLowerCase()))
+    .filter((cat) => cat.name.toLowerCase().includes(searchQuery.toLowerCase()))
     .sort((a, b) => {
-      if (sortColumn === 'id') {
-        return sortDirection === 'asc'
+      if (sortColumn === "id") {
+        return sortDirection === "asc"
           ? a.id.localeCompare(b.id)
-          : b.id.localeCompare(a.id)
+          : b.id.localeCompare(a.id);
       }
-      if (sortColumn === 'name') {
-        return sortDirection === 'asc'
+      if (sortColumn === "name") {
+        return sortDirection === "asc"
           ? a.name.localeCompare(b.name)
-          : b.name.localeCompare(a.name)
+          : b.name.localeCompare(a.name);
       }
-      if (sortColumn === 'category') {
-        return sortDirection === 'asc'
+      if (sortColumn === "category") {
+        return sortDirection === "asc"
           ? a.category?.name.localeCompare(b.category.name)
-          : b.category?.name.localeCompare(a.category.name)
+          : b.category?.name.localeCompare(a.category.name);
       }
-      if (sortColumn === 'price') {
-        return sortDirection === 'asc' ? a.price - b.price : b.price - a.price
+      if (sortColumn === "price") {
+        return sortDirection === "asc" ? a.price - b.price : b.price - a.price;
       }
-      if (sortColumn === 'createdAt') {
-        return sortDirection === 'asc'
+      if (sortColumn === "createdAt") {
+        return sortDirection === "asc"
           ? new Date(a.createdAt) - new Date(b.createdAt)
-          : new Date(b.createdAt) - new Date(a.createdAt)
+          : new Date(b.createdAt) - new Date(a.createdAt);
       }
-      return 0
-    })
+      return 0;
+    });
 
   // State and functions for handling the edit mode
-  const [editMode, setEditMode] = useState(false)
-  const [editItemId, setEditItemId] = useState('')
+  const [editMode, setEditMode] = useState(false);
+  const [editItemId, setEditItemId] = useState("");
 
   // Function to handle entering edit mode
-  const enterEditMode = itemId => {
-    setEditMode(true)
-    setEditItemId(itemId)
-  }
+  const enterEditMode = (itemId) => {
+    setEditMode(true);
+    setEditItemId(itemId);
+  };
 
   // Function to handle exiting edit mode
   const exitEditMode = () => {
-    setEditMode(false)
-    setEditItemId('')
-  }
+    setEditMode(false);
+    setEditItemId("");
+  };
 
-  const handleView = item => {
-    setSelectedItem(item)
-  }
+  const handleView = (item) => {
+    setSelectedItem(item);
+  };
 
   const exportToCSV = () => {
     const csvContent = [
-      'Full Name, Category, Price, Original Price, Discount Percentage, Stock Quantity, Is New Product, Created At',
-      ...filteredData.map(product => [
-        product.name,
-        product.categories.map(category => category.name).join(','),
-        product.price,
-        product.originalPrice !== null ? product.originalPrice : 'N/A',
-        product.discountPercentage !== null ? product.discountPercentage : 'N/A',
-        product.stockQuantity,
-        product.isNewProduct ? 'Yes' : 'No',
-        new Date(product.createdAt).toLocaleDateString()
-      ].join(','))
-    ].join('\n');
-  
+      "Full Name, Category, Price, Original Price, Discount Percentage, Stock Quantity, Is New Product, Created At",
+      ...filteredData.map((product) =>
+        [
+          product.name,
+          product.categories.map((category) => category.name).join(","),
+          product.price,
+          product.originalPrice !== null ? product.originalPrice : "N/A",
+          product.discountPercentage !== null
+            ? product.discountPercentage
+            : "N/A",
+          product.stockQuantity,
+          product.isNewProduct ? "Yes" : "No",
+          new Date(product.createdAt).toLocaleDateString(),
+        ].join(",")
+      ),
+    ].join("\n");
+
     const encodedURI = encodeURI(`data:text/csv;charset=utf-8,${csvContent}`);
-    const link = document.createElement('a');
-    link.setAttribute('href', encodedURI);
-    link.setAttribute('download', 'products.csv');
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedURI);
+    link.setAttribute("download", "products.csv");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
   };
-  
-
 
   //loading
 
-  if(loading){
+  if (loading) {
     return (
       <div className="flex justify-center items-center h-screen">
         <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-green-400"></div>
@@ -210,17 +214,14 @@ const fetchData = async () => {
           Loading...
         </h1>
       </div>
-    )
+    );
   }
 
-
- 
-
-
   return (
-    <div    className={` ${
-      isDarkMode ? "bg-black text-white" : "bg-white text-black"
-    }`}
+    <div
+      className={` ${
+        isDarkMode ? "bg-black text-white" : "bg-white text-black"
+      }`}
     >
       <Helmet>
         <title>{pageTitle}</title>
@@ -240,7 +241,7 @@ const fetchData = async () => {
                Name, Category ,Price
                                 "
                   value={searchQuery}
-                  onChange={e => {
+                  onChange={(e) => {
                     setSearchQuery(e.target.value);
                   }}
                 />
@@ -263,7 +264,7 @@ const fetchData = async () => {
                   "
                   className="block w-full px-3 py-2 border-2  border-green-400 text-black sm:w-36 whitespace-pre rounded-lg  p-1 pr-2 text-base outline-none focus:shadow sm:text-sm"
                   value={sortColumn}
-                  onChange={e => {
+                  onChange={(e) => {
                     setSortColumn(e.target.value);
                   }}
                 >
@@ -383,8 +384,7 @@ const fetchData = async () => {
                 </tr>
               </thead>
 
-         
-              { filteredData.length === 0 ? (
+              {filteredData.length === 0 ? (
                 <tr>
                   <td colSpan="4" className="text-center py-4">
                     No items found
@@ -414,13 +414,10 @@ const fetchData = async () => {
                       </td>
 
                       <td className="whitespace-no-wrap py-4 px-2 text-right text-sm lg:text-left">
-        {cat.categories.map((category, i) => (
-          <span key={i}>
-            {category.name}
-  
-          </span>
-        ))}
-      </td>
+                        {cat.categories.map((category, i) => (
+                          <span key={i}>{category.name}</span>
+                        ))}
+                      </td>
 
                       <td className="whitespace-no-wrap py-4 px-4 text-right text-sm lg:text-left">
                         {cat.price}
@@ -491,77 +488,77 @@ const fetchData = async () => {
           </div>
         </div>
         <div className="flex flex-col sm:flex-row justify-between my-4 mx-3 items-center">
-  <div>
-    <span className="text-xs sm:text-xl">
-      Showing {(page - 1) * itemsPerPage + 1} - {Math.min(page * itemsPerPage, totalPages)} of {totalPages} Entries
-    </span>
-  </div>
-  <div className="flex items-center justify-center mt-4 sm:mt-0 sm:ml-4">
-    <button
-      onClick={handlePrevPage}
-      disabled={page === 1}
-      className="mr-2 h-12 w-12 rounded-full bg-green-400 text-black border text-md font-semibold transition duration-150 hover:bg-gray-100"
-    >
-      Prev
-    </button>
-    <button
-      onClick={handleNextPage}
-      disabled={page === totalPages}
-      className="h-12 w-12 rounded-full border bg-green-400 text-black text-md font-semibold transition duration-150 hover:bg-gray-100"
-    >
-      Next
-    </button>
-  </div>
-  <div className="flex items-center justify-center mt-4 sm:mt-0 ">
-    <div className="ml-4">
-      {/* Dropdown to select items per page */}
-      <label htmlFor="itemsPerPage" className="mr-2 text-sm">
-        Items per page:
-      </label>
-      <select
-  id="itemsPerPage"
-  className="px-2 py-1 border rounded-md bg-green-400 text-black"
-  value={itemsPerPage}
-  onChange={e => {
-    setItemsPerPage(Number(e.target.value));
-    setPage(1); 
-   
-    fetchData(1, Number(e.target.value));
-  }}
->
-  <option value={10}>10</option>
-  <option value={20}>20</option>
-  <option value={30}>30</option>
-  <option value={40}>40</option>
-</select>
+          <div>
+            <span className="text-xs sm:text-xl">
+              Showing {(page - 1) * itemsPerPage + 1} -{" "}
+              {Math.min(page * itemsPerPage, totalPages)} of {totalPages}{" "}
+              Entries
+            </span>
+          </div>
+          <div className="flex items-center justify-center mt-4 sm:mt-0 sm:ml-4">
+            <button
+              onClick={handlePrevPage}
+              disabled={page === 1}
+              className="mr-2 h-12 w-12 rounded-full bg-green-400 text-black border text-md font-semibold transition duration-150 hover:bg-gray-100"
+            >
+              Prev
+            </button>
+            <button
+              onClick={handleNextPage}
+              disabled={page === totalPages}
+              className="h-12 w-12 rounded-full border bg-green-400 text-black text-md font-semibold transition duration-150 hover:bg-gray-100"
+            >
+              Next
+            </button>
+          </div>
+          <div className="flex items-center justify-center mt-4 sm:mt-0 ">
+            <div className="ml-4">
+              {/* Dropdown to select items per page */}
+              <label htmlFor="itemsPerPage" className="mr-2 text-sm">
+                Items per page:
+              </label>
+              <select
+                id="itemsPerPage"
+                className="px-2 py-1 border rounded-md bg-green-400 text-black"
+                value={itemsPerPage}
+                onChange={(e) => {
+                  setItemsPerPage(Number(e.target.value));
+                  setPage(1);
 
-    </div>
-    <div className="ml-4">
-      {/* Direct page number input */}
-      <label htmlFor="pageNumber" className="mr-2 text-sm">
-        Go to page:
-      </label>
-      <input
-        id="pageNumber"
-        type="number"
-        min={1}
-        max={totalPages}
-        className="px-2 py-1 border rounded-md w-16 bg-green-400 text-black"
-        value={page}
-        onChange={e => {
-          setPage(Number(e.target.value));
-        }}
-      />
-    </div>
-  </div>
-</div>
-
+                  fetchData(1, Number(e.target.value));
+                }}
+              >
+                <option value={10}>10</option>
+                <option value={20}>20</option>
+                <option value={30}>30</option>
+                <option value={40}>40</option>
+              </select>
+            </div>
+            <div className="ml-4">
+              {/* Direct page number input */}
+              <label htmlFor="pageNumber" className="mr-2 text-sm">
+                Go to page:
+              </label>
+              <input
+                id="pageNumber"
+                type="number"
+                min={1}
+                max={totalPages}
+                className="px-2 py-1 border rounded-md w-16 bg-green-400 text-black"
+                value={page}
+                onChange={(e) => {
+                  setPage(Number(e.target.value));
+                }}
+              />
+            </div>
+          </div>
+        </div>
       </div>
       {editMode && editItemId && (
         <UpdateItem
           itemId={editItemId}
           initialValues={
-            editItemId && data.find(item => item._id === editItemId)
+            editItemId && data.find((item) => item._id === editItemId)
           }
           onClose={exitEditMode}
           onUpdate={fetchData}
@@ -614,6 +611,6 @@ const fetchData = async () => {
       )}
     </div>
   );
-}
+};
 
-export default List
+export default List;

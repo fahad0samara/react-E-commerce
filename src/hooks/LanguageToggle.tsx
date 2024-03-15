@@ -1,12 +1,12 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import Switch from 'react-switch';
 
 const LanguageToggle = () => {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   // Function to handle language change
-  const handleLanguageChange = (checked) => {
+  const handleLanguageChange = (checked: any) => {
     const language = checked ? 'ar' : 'en';
     i18n.changeLanguage(language);
     localStorage.setItem('selectedLanguage', language); // Store selected language in local storage
@@ -22,14 +22,16 @@ const LanguageToggle = () => {
 
   return (
     <div className="flex justify-end p-4">
+      <label htmlFor="language-toggle" className="inline-block mr-2">
+        {i18n.language === 'ar' ? t('languageToggle.arabic') : t('languageToggle.english')}
+      </label>
       <Switch
-       id="language-toggle" 
+        id="language-toggle" 
         onChange={handleLanguageChange}
         checked={i18n.language === 'ar'}
         uncheckedIcon={false}
         checkedIcon={false}
       />
-      <div className="ml-2">{i18n.language === 'ar' ? 'العربية' : 'English'}</div>
     </div>
   );
 };
