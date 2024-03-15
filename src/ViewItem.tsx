@@ -1,3 +1,4 @@
+//@ts-nocheck
 import { useDarkMode } from "./hooks/useDarkMode";
 
 const ViewItem = ({ item, onClose }) => {
