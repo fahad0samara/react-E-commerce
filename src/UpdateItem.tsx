@@ -64,41 +64,40 @@ const UpdateMenuItemForm: React.FC<UpdateMenuItemFormProps> = ({
 
   const validateForm = () => {
     const errors: Record<string, string> = {};
-
+  
     if (!name) {
       errors.name = 'Name is required';
     }
-
+  
     if (!price) {
       errors.price = 'Price is required';
     } else if (isNaN(parseFloat(price))) {
       errors.price = 'Price must be a number';
     }
-
-    if (originalPrice && !discountPercentage) {
-      errors.discountPercentage = 'Discount Percentage is required';
-    } else if (isNewProduct && isNaN(parseFloat(discountPercentage))) {
-      errors.discountPercentage = 'Discount Percentage must be a number';
+  
+    if (originalPrice && isNewProduct) {
+      if (!discountPercentage) {
+        errors.discountPercentage = 'Discount Percentage is required';
+      } else if (isNaN(parseFloat(discountPercentage))) {
+        errors.discountPercentage = 'Discount Percentage must be a number';
+      }
     }
-
+  
     if (originalPrice && !originalPrice) {
       errors.originalPrice = 'Discount price is required';
     } else if (originalPrice && isNaN(parseFloat(originalPrice))) {
       errors.originalPrice = 'Discount price must be a number';
     }
-
+  
     if (!description) {
       errors.description = 'Description is required';
     }
-
-    if (!isNewProduct) {
-      setDiscountPercentage('');
-    }
-
+  
     setErrors(errors);
-
+  
     return Object.keys(errors).length === 0;
   };
+  
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

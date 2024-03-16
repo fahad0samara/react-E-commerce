@@ -33,6 +33,7 @@ originalPrice: string;
     stockQuantity: number;
     isNewProduct: boolean; 
     category: '', 
+    
 
 
   }>({
@@ -46,6 +47,7 @@ originalPrice: string;
     stockQuantity: 0,
     isNewProduct: false,
     category: '', 
+    imageIdentifier: "",
   });
   const [categories, setCategories] = useState([]);
 const navigate = useNavigate();
@@ -112,19 +114,23 @@ const navigate = useNavigate();
         return;
       }
       const reader = new FileReader();
-
+  
       reader.onload = () => {
         if (typeof reader.result === 'string') {
+          // Append a timestamp to the file name to make it unique
+          const uniqueFileName = `${Date.now()}_${file.name}`;
           setFormData({
             ...formData,
             image: file, // Set the image file object
+            imageName: uniqueFileName, // Store the unique file name in state
           });
         }
       };
-
+  
       reader.readAsDataURL(file);
     }
   };
+  
 
 
   const handleSubmit = async (e: { preventDefault: () => void }) => {
