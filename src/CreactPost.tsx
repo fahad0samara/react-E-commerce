@@ -1,5 +1,5 @@
-//@ts-nocheck
 
+//@ts-nocheck
 import { useState,
   useEffect
  } from "react";
@@ -7,7 +7,6 @@ import axios from "axios";
 import API_URL from "./apiConfig";
 import { FaImage } from "react-icons/fa"; // Import image icon
 import Switch from 'react-switch';
-import { useNavigate } from "react-router-dom";
 import {Helmet} from "react-helmet";
 import { useDarkMode } from "./hooks/useDarkMode";
 import Loder from "./Loder/Loder";
@@ -47,10 +46,10 @@ originalPrice: string;
     stockQuantity: 0,
     isNewProduct: false,
     category: '', 
-    imageIdentifier: "",
+ 
   });
   const [categories, setCategories] = useState([]);
-const navigate = useNavigate();
+
   const [loading, setLoading] = useState(false); // Loading state
   const [showAdditionalFields, setShowAdditionalFields] = useState(false);
 
@@ -114,23 +113,19 @@ const navigate = useNavigate();
         return;
       }
       const reader = new FileReader();
-  
+
       reader.onload = () => {
         if (typeof reader.result === 'string') {
-          // Append a timestamp to the file name to make it unique
-          const uniqueFileName = `${Date.now()}_${file.name}`;
           setFormData({
             ...formData,
             image: file, // Set the image file object
-            imageName: uniqueFileName, // Store the unique file name in state
           });
         }
       };
-  
+
       reader.readAsDataURL(file);
     }
   };
-  
 
 
   const handleSubmit = async (e: { preventDefault: () => void }) => {
@@ -167,9 +162,15 @@ const navigate = useNavigate();
         category: '', 
       });
       toast.success(t('createProduct.successMessage'));
+
+      // reload the page after 2 seconds
+      setTimeout(() => {
+        window.location.reload();
+      }, 2000);
+
   
    
-      navigate("/ProductAddedConfirmation");
+    
     } catch (error) {
       if (error.response) {
         // Server responded with a status code outside of 2xx range
